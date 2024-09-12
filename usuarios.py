@@ -1,5 +1,10 @@
 import re
 import os
+import pywhatkit as kit
+import time
+import ssl
+import smtplib
+from email.message import EmailMessage
 
 class Programa:
   def __init__(self):
@@ -47,6 +52,20 @@ class Programa:
       archivo.write(f"{self.id} {self.nombre} {self.apellido} {self.correo} {self.telefono}\n")
       archivo.close()
       print("El usuario se ha registrado con éxito")
+      #Crea email
+      email = EmailMessage()
+      email['From'] = "camposcristhal@gmail.com"
+      email['To'] = self.correo
+      email['Subject'] = "Bienvenida"
+      email.set_content("Este es un correo de bienvenida")
+      #Inicia sesión e envía email
+      with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=ssl.create_default_context()) as smtp:
+        smtp.login("camposcristhal@gmail.com", "upcb bsze witr zoec")
+        smtp.sendmail("camposcristhal@gmail.com", self.correo, email.as_string())
+      #Envía whatsapp
+      mensaje = "Este es un mensaje de bienvenida"
+      kit.sendwhatmsg_instantly(self.telefono, mensaje, 20, True)
+      time.sleep(10)
     else:
       print("Vuelve a intentarlo")
 
