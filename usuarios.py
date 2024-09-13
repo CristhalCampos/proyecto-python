@@ -16,19 +16,21 @@ class Programa:
 
   def mostrarMenu(self):
     while True:
-      print("Menú\n 1. Registrar un usuario\n 2. Eliminar un usuario por su id\n 3. Actualizar un usuario por su id\n 4. Ver todos los usuarios\n 5. Eliminar todos los usuarios\n 6. Salir\n")
+      print("Menú\n 1. Registrar un usuario\n 2. Eliminar un usuario por su id\n 3. Actualizar un dato de un usuario por su id\n 4. Actualizar todos los datos de un usuario por su id\n 5. Ver todos los usuarios\n 6. Eliminar todos los usuarios\n 7. Salir\n")
       opcion = input("Ingresa una opción\n").strip()
       if opcion == '1':
         self.registrarUsuario()
       elif opcion == '2':
         self.eliminarUsuario()
       elif opcion == '3':
-        self.actualizarUsuario()
+        self.actualizarDato()
       elif opcion == '4':
-        self.verUsuarios()
+        self.actualizarUsuario()
       elif opcion == '5':
-        self.eliminarUsuarios()
+        self.verUsuarios()
       elif opcion == '6':
+        self.eliminarUsuarios()
+      elif opcion == '7':
         print("Saliste del programa")
         break
       else:
@@ -48,7 +50,10 @@ class Programa:
           self.id = 1
         with open("archivo.txt", "a") as archivo:
           archivo.write(f"{self.id} {self.nombre} {self.apellido} {self.correo} {self.telefono}\n")
-        print("El usuario se ha registrado con éxito") 
+        print("El usuario se ha registrado con éxito")
+        """
+        self.enviarBienvenida() 
+        """
       else:
         print("Datos no válidos. Vuelve a intentarlo")
     except Exception as e:
@@ -79,7 +84,62 @@ class Programa:
         print("No existe el archivo de usuarios. Registra un usuario para crearlo")
     except Exception as e:
       print(f"Error inesperado: {e}")
-
+  
+  def actualizarDato(self):
+    try:
+      if os.path.exists("archivo.txt"):
+        with open("archivo.txt", "r") as archivo:
+          lineas = archivo.readlines()
+        if lineas:
+          id = int(input("Ingresa el id del usuario\n").strip())
+          if 0 < id <= len(lineas):
+            print("Cuál dato deseas actualizar?\n 1. Correo\n 2. Telefono\n")
+            dato = input("Ingresa una opción\n").strip()
+            if dato == '1':
+              for i in range(len(lineas)):
+                if i == id-1:
+                  intentos = 3
+                  for intento in range(intentos):
+                    nuevoCorreo = input("Ingresa el nuevo correo del usuario\n").strip()
+                    if re.search(r'^[a-zA-Z0-9_.-]+@[a-zA-Z0-9]+\.[a-zA-Z0-9.]+$', nuevoCorreo):
+                      x = re.split(r'\s', lineas[i])
+                      antiguoCorreo = x[3]
+                      lineas[i] = lineas[i].replace(antiguoCorreo, nuevoCorreo)
+                      #Actualiza el archivo
+                      with open("archivo.txt", "w") as archivo:
+                        archivo.writelines(lineas)
+                      print("Correo actualizado correctamente")
+                      break
+                    else:
+                      print(f"Correo no válido. El correo debe tener un formato correcto\n Intento: {intento+1}/{intentos}")
+            elif dato == '2':
+              for i in range(len(lineas)):
+                if i == id-1:
+                  intentos = 3
+                  for intento in range(intentos):
+                      nuevoTelefono = input("Ingresa el nuevo telefono del usuario\n").strip()
+                      if re.search(r'^[\+\s-]?\d{10,15}$', nuevoTelefono):
+                        x = re.split(r'\s', lineas[i])
+                        antiguoTelefono = x[4]
+                        lineas[i] = lineas[i].replace(antiguoTelefono, nuevoTelefono)
+                        #Actualiza el archivo
+                        with open("archivo.txt", "w") as archivo:
+                          archivo.writelines(lineas)
+                        print("Telefono actualizado correctamente")
+                        break
+                      else:
+                        print(f"Telefono no válido. Solo se permiten números (mínimo 10, máximo 15). Opcional: espacios, + y -\n Intento: {intento+1}/{intentos}")
+            else:
+              print("Opción inválida. Vuelve a intentarlo")
+          else:
+            print("id no válido")
+        else:
+          print("No hay usuarios registrados")
+      else:
+        print("No existe el archivo de usuarios. Registra un usuario para crearlo")
+    except Exception as e:
+      print(f"Error inesperado: {e}")
+  
   def actualizarUsuario(self):
     try:
       if os.path.exists("archivo.txt"):
@@ -133,9 +193,9 @@ class Programa:
           print("Todos los usuarios han sido eliminados")
           self.id = 1
         else:
-          print("No hay usuarios registrados que eliminar")
+          print("No hay usuarios registrados")
       else:
-        print("No existe el archivo de usuarios que eliminar")
+        print("No existe el archivo de usuarios. Registra un usuario para crearlo")
     except Exception as e:
         print(f"Error inesperado: {e}")
     
@@ -180,24 +240,24 @@ class Programa:
       return True
     else:
       return False
-  
-  def enviarBienvenida():
-    """
-      #Crea email
-      email = EmailMessage()
-      email['From'] = "camposcristhal@gmail.com"
-      email['To'] = self.correo
-      email['Subject'] = "Bienvenida"
-      email.set_content("Este es un correo de bienvenida")
-      #Inicia sesión e envía email
-      with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=ssl.create_default_context()) as smtp:
-        smtp.login("camposcristhal@gmail.com", "upcb bsze witr zoec")
-        smtp.sendmail("camposcristhal@gmail.com", self.correo, email.as_string())
-      #Envía whatsapp
-      mensaje = "Este es un mensaje de bienvenida"
-      kit.sendwhatmsg_instantly(self.telefono, mensaje, 20, True)
-      time.sleep(10)
-    """
+    
+  """
+  def enviarBienvenida(self):
+    #Envía whatsapp
+    mensaje = "Este es un mensaje de bienvenida"
+    kit.sendwhatmsg_instantly(self.telefono, mensaje, 20, True)
+    time.sleep(10)
+    #Crea email
+    email = EmailMessage()
+    email['From'] = "camposcristhal@gmail.com"
+    email['To'] = self.correo
+    email['Subject'] = "Bienvenida"
+    email.set_content("Este es un correo de bienvenida")
+    #Inicia sesión e envía email
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=ssl.create_default_context()) as smtp:
+      smtp.login("camposcristhal@gmail.com", "upcb bsze witr zoec")
+      smtp.sendmail("camposcristhal@gmail.com", self.correo, email.as_string())
+  """
 
 ejecutar = Programa()
 ejecutar.mostrarMenu()
